@@ -52,14 +52,22 @@
 
 #include "def.h"
 
+extern int btReadCount;
 extern FILE *fpbtree;
+
+/* counts the number of b-tree page fetches*/
+int getNumberOfFetchPages() {
+    int oldCount = btReadCount;
+    btReadCount = 0;
+    return oldCount;
+}
 
 struct PageHdr *FetchPage(PAGENO Page)
 /* Page number of page to be fetched */
 {
     struct PageHdr *PagePtr;
     struct KeyRecord *KeyNode,
-        *KeyListTraverser; /* To traverse the list of keys */
+            *KeyListTraverser; /* To traverse the list of keys */
 
     int i;
     PAGENO FindNumPagesInTree(void);
@@ -67,7 +75,7 @@ struct PageHdr *FetchPage(PAGENO Page)
     /* check validity of "Page" */
     if ((Page < 1) || (Page > FindNumPagesInTree())) {
         printf("FetchPage: Pagenum %d out of range (%d,%d)\n", (int) Page,
-               (int) ROOT, (int) FindNumPagesInTree());
+                (int) ROOT, (int) FindNumPagesInTree());
         /*	exit(-1); */
     }
 
@@ -85,13 +93,13 @@ struct PageHdr *FetchPage(PAGENO Page)
 
     if (IsLeaf(PagePtr))
         fread(&PagePtr->PgNumOfNxtLfPg, sizeof(PagePtr->PgNumOfNxtLfPg), 1,
-              fpbtree);
+                fpbtree);
     fread(&PagePtr->NumBytes, sizeof(PagePtr->NumBytes), 1, fpbtree);
     fread(&PagePtr->NumKeys, sizeof(PagePtr->NumKeys), 1, fpbtree);
     PagePtr->KeyListPtr = NULL;
     if (IsNonLeaf(PagePtr))
         fread(&PagePtr->PtrToFinalRtgPg, sizeof(PagePtr->PtrToFinalRtgPg), 1,
-              fpbtree);
+                fpbtree);
 
     /* Read in the keys */
     KeyListTraverser = NULL;
@@ -105,7 +113,7 @@ struct PageHdr *FetchPage(PAGENO Page)
         ck_malloc(KeyNode->StoredKey, "KeyNode->StoredKey in FetchPage()");
         fread(KeyNode->StoredKey, sizeof(char), KeyNode->KeyLen, fpbtree);
         (*(KeyNode->StoredKey + KeyNode->KeyLen)) =
-            '\0'; /* string terminator */
+                '\0'; /* string terminator */
         if (IsLeaf(PagePtr))
             fread(&KeyNode->Posting, sizeof(KeyNode->Posting), 1, fpbtree);
         if (KeyListTraverser == NULL) {
@@ -119,5 +127,6 @@ struct PageHdr *FetchPage(PAGENO Page)
     if (PagePtr->NumKeys != 0)
         KeyListTraverser->Next = NULL;
 
+    btReadCount++;
     return (PagePtr);
 }

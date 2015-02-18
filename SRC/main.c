@@ -22,22 +22,40 @@
 long LISTSIZE[100];
 
 extern FILE *fpbtree, *fppost, *fptext;
+
 extern void print_and_reset_stats();
+
 extern int setparms(void);
+
 extern int dbopen(void);
+
 extern void scanTree(void (*f)(struct KeyRecord *));
+
 extern int insert(char *fname);
+
 extern int search(char *key, int flag);
+
 extern int printPage(PAGENO i, FILE *fpb);
+
 extern void PrintTreeInOrder(PAGENO pgNum, int level);
+
 extern int dbclose(void);
+
 extern void printKey(struct KeyRecord *p);
+
 extern void printOcc(struct KeyRecord *p);
+
 extern int get_predecessors(char *key, int k, char *result[]);
+
 extern int get_successors(char *key, int k, char *result[]);
+
 extern char **create_string_array(size_t n);
+
 extern void sort_string_array(char **arr, size_t n);
+
 extern void free_string_array(char **arr, size_t n);
+
+extern int getNumberOfFetchPages();
 
 int main(int argc, char **argv) {
     char word[MAXWORDSIZE];
@@ -45,7 +63,7 @@ int main(int argc, char **argv) {
     char fname[MAXWORDSIZE]; /* name of input file */
     PAGENO i;
     int goOn;
-    int  k;
+    int k;
 
     setparms(); /* reads the pagesize and the number of ptrs/postigs_record */
     dbopen();   /* opens or creates the three files (btree, postings, text) */
@@ -67,66 +85,66 @@ int main(int argc, char **argv) {
         scanf("%s", cmd);
         assert(strlen(cmd) < MAXWORDSIZE);
         switch (cmd[0]) {
-        case 'C':
-            printf("\n*** Scanning... \n");
-            scanTree(&printOcc);
-            break;
-        case 'i':
-            printf("\tgive input file name: ");
-            scanf("%s", fname);
-            assert(strlen(fname) < MAXWORDSIZE);
-            printf("\n*** Inserting %s\n", fname);
-            insert(fname);
-            break;
-        case 's':
-            printf("enter search-word: ");
-            scanf("%s", word);
-            assert(strlen(word) < MAXWORDSIZE);
-            printf("\n*** Searching for word %s \n", word);
-            search(word, FALSE);
-            break;
-        case 'S':
-            printf("enter search-word: ");
-            scanf("%s", word);
-            assert(strlen(word) < MAXWORDSIZE);
-            printf("\n*** Searching for word %s \n", word);
-            search(word, TRUE);
-            break;
-        case 'p':
-            printf("pagenumber=?\n");
-            scanf("%s", cmd);
-            assert(strlen(cmd) < MAXWORDSIZE);
-            i = (PAGENO) atoi(cmd);
-            printPage(i, fpbtree);
-            break;
-        case '>':
-            printf("word=?\n");
-            scanf("%s", word);
-            printf("k=?\n");
-            scanf("%d", &k);
-            printf("IMPLEMENT  ME!\n");
-            break;
-        case '<':
-            printf("word=?\n");
-            scanf("%s", word);
-            printf("k=?\n");
-            scanf("%d", &k);
-            printf("IMPLEMENT  ME!\n");
-            break;
-        case 'T':
-            printf("\n*** Printing tree in order .........\n");
-            PrintTreeInOrder(ROOT, 0);
-            break;
-        case '#':
-            printf("IMPLEMENT  MEOW!\n");
-            break;
-        case 'x':
-            printf("\n*** Exiting .........\n");
-            goOn = FALSE;
-            break;
-        default:
-            printf("\n*** Illegal command \"%s\"\n", cmd);
-            break;
+            case 'C':
+                printf("\n*** Scanning... \n");
+                scanTree(&printOcc);
+                break;
+            case 'i':
+                printf("\tgive input file name: ");
+                scanf("%s", fname);
+                assert(strlen(fname) < MAXWORDSIZE);
+                printf("\n*** Inserting %s\n", fname);
+                insert(fname);
+                break;
+            case 's':
+                printf("enter search-word: ");
+                scanf("%s", word);
+                assert(strlen(word) < MAXWORDSIZE);
+                printf("\n*** Searching for word %s \n", word);
+                search(word, FALSE);
+                break;
+            case 'S':
+                printf("enter search-word: ");
+                scanf("%s", word);
+                assert(strlen(word) < MAXWORDSIZE);
+                printf("\n*** Searching for word %s \n", word);
+                search(word, TRUE);
+                break;
+            case 'p':
+                printf("pagenumber=?\n");
+                scanf("%s", cmd);
+                assert(strlen(cmd) < MAXWORDSIZE);
+                i = (PAGENO) atoi(cmd);
+                printPage(i, fpbtree);
+                break;
+            case '>':
+                printf("word=?\n");
+                scanf("%s", word);
+                printf("k=?\n");
+                scanf("%d", &k);
+                printf("IMPLEMENT  ME!\n");
+                break;
+            case '<':
+                printf("word=?\n");
+                scanf("%s", word);
+                printf("k=?\n");
+                scanf("%d", &k);
+                printf("IMPLEMENT  ME!\n");
+                break;
+            case 'T':
+                printf("\n*** Printing tree in order .........\n");
+                PrintTreeInOrder(ROOT, 0);
+                break;
+            case '#':
+                printf("\n# of reads on B-tree:%d\n", getNumberOfFetchPages());
+                break;
+            case 'x':
+                printf("\n*** Exiting .........\n");
+                goOn = FALSE;
+                break;
+            default:
+                printf("\n*** Illegal command \"%s\"\n", cmd);
+                break;
         }
     }
 
