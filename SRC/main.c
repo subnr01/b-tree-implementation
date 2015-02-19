@@ -70,6 +70,7 @@ int main(int argc, char **argv) {
 
     goOn = TRUE;
     while (goOn) {
+        fflush(stdout);
         printf("\n\t*** These are your commands .........\n");
         printf("\t\"C\" to scan the tree\n");
         printf("\t\"i\" to insert\n");
@@ -81,6 +82,7 @@ int main(int argc, char **argv) {
         printf("\t\"T\" to print the btree in inorder format\n");
         printf("\t\"#\" to reset and print stats\n");
         printf("\t\"x\" to exit\n");
+        fflush(stdout);
         /* printf("\"d\" to display statistics, \"c\" to clear them,\n"); */
         scanf("%s", cmd);
         assert(strlen(cmd) < MAXWORDSIZE);
@@ -122,7 +124,7 @@ int main(int argc, char **argv) {
                 scanf("%s", word);
                 printf("k=?\n");
                 scanf("%d", &k);
-                printf("IMPLEMENT  ME!\n");
+                get_successors(word, k, result);
                 break;
             case '<':
                 printf("word=?\n");

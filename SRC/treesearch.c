@@ -20,7 +20,7 @@ extern struct PageHdr *FetchPage(PAGENO Page);
  * recursive call to find the page in which the key should reside
  * and return the page number (guaranteed to be a leaf page).
  */
-PAGENO treesearch_page(PAGENO PageNo, char *key) {
+PAGENO treesearch_page(PAGENO PageNo, char *key) { // ROOT, word
     PAGENO result;
     struct PageHdr *PagePtr = FetchPage(PageNo);
     if (IsLeaf(PagePtr)) { /* found leaf */
@@ -55,3 +55,14 @@ POSTINGSPTR treesearch(PAGENO PageNo, char *key) {
     FreePage(PagePtr);
     return result;
 }
+
+struct PageHdr * treesearch_pageHdr(PAGENO PageNo, char *key) {
+    /* recursive call to find page number */
+    const PAGENO page = treesearch_page(PageNo, key);
+    /* from page number we traverse the leaf page */
+    struct PageHdr *PagePtr = FetchPage(page);
+    //FreePage(PagePtr);
+    return PagePtr;
+}
+
+
