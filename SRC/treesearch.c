@@ -121,6 +121,13 @@ void printLL(struct node *pNode) {
 
 }
 
+void printLLString(struct nodeString *pNode) {
+    while (pNode) {
+        printf("List of keys--:%s\n", pNode->value);
+        pNode = pNode->next;
+    }
+}
+
 void createstackfromLL(struct node *pNode) {
     if (pNode) {
         createstackfromLL(pNode->next);

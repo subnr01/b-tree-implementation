@@ -92,6 +92,11 @@ struct node {
     struct node *next;
 };
 
+struct nodeString {
+    char *value;
+    struct nodeString *next;
+};
+
 typedef struct stack {
     PAGENO data;
     struct stack *next;
