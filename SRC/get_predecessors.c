@@ -65,11 +65,11 @@ void search_build_list(char *key, int k, int flag) {
     POSTINGSPTR pptr;
     /* Print an error message if strlen(key) > MAXWORDSIZE */
     if (strlen(key) > MAXWORDSIZE) {
-        printf("ERROR in \"search\":  Length of key Exceeds Maximum Allowed\n");
-        printf(" and key May Be Truncated\n");
+        //printf("ERROR in \"search\":  Length of key Exceeds Maximum Allowed\n");
+        //printf(" and key May Be Truncated\n");
     }
     if (iscommon(key)) {
-        printf("\"%s\" is a common word - no searching is done\n", key);
+        //printf("\"%s\" is a common word - no searching is done\n", key);
         return;
     }
     if (check_word(key) == FALSE) {
@@ -81,7 +81,7 @@ void search_build_list(char *key, int k, int flag) {
     struct node *root = NULL;
     pptr = treesearch_page_buildLL(ROOT, key, root);
     if (pptr == NONEXISTENT) {
-        printf("key \"%s\": not found\n", key);
+        //printf("key \"%s\": not found\n", key);
     } else {
         if (flag) {
             getpostings(pptr);
@@ -92,7 +92,7 @@ void search_build_list(char *key, int k, int flag) {
             display();
             //build_pred_list(key, k, fpbtree);
             char temp[MAXWORDSIZE];
-            printf("Found the key!\n");
+            //printf("Found the key!\n");
             iterate_stack(fpbtree, temp, key, k);
 
         }
@@ -107,30 +107,35 @@ void iterate_stack(FILE *fpb, char *key, char *targetKey, int k) {
     NUMKEYS NumKeys;
     KEYLEN KeyLen;
     NUMBYTES NumBytes;
+    int homePage, isHome = 0;
     while (!empty() && k > 0) {
-           display();
+
+        display();
         PAGENO curr = pop();
-          printf("\naccessing from stack:%ld\n", curr);
+        if (!isHome) {
+            isHome = 1;
+            homePage = curr;
+        }
+        //printf("\naccessing from stack:%ld\n", curr);
         fseek(fpbtree, (long) (curr - 1) * PAGESIZE, 0);
         fread(&Ch, sizeof(Ch), 1, fpb);
         if (feof(fpbtree) != 0)
             exit(0);
-         printf("Leafstatus:%c\n", Ch);
+        //printf("Leafstatus:%c\n", Ch);
         fread(&PgNum, sizeof(PgNum), 1, fpb);
-          printf("Page#:%d\n", (int) PgNum);
+        //printf("Page#:%d\n", (int) PgNum);
         if (Ch == LeafSymbol) {
             fread(&PtrToNxtLfPg, sizeof(PtrToNxtLfPg), 1, fpb);
-              printf("PtrtoNextLeafPage:%d\n", (int) PtrToNxtLfPg);
-
+            //printf("PtrtoNextLeafPage:%d\n", (int) PtrToNxtLfPg);
         }
         fread(&NumBytes, sizeof(NumBytes), 1, fpb);
-        //printf("Number of bytes occcupied:%d\n", NumBytes);
+        ////printf("Number of bytes occcupied:%d\n", NumBytes);
         fread(&NumKeys, sizeof(NumKeys), 1, fpb);
-       printf("Number of keys:%d\n", NumKeys);
+        //printf("Number of keys:%d\n", NumKeys);
         //struct PageHdr *PagePtr = FetchPage(curr);
         if (Ch == NonLeafSymbol) {
             fread(&PtrToFinalRtgPg, sizeof(PtrToFinalRtgPg), 1, fpb);
-           printf("********\t*******PtrToFinalRtgPg%d\n", (int) PtrToFinalRtgPg);
+            //printf("********\t*******PtrToFinalRtgPg%d\n", (int) PtrToFinalRtgPg);
 
         }
         char values[NumKeys][MAXWORDSIZE];
@@ -138,45 +143,50 @@ void iterate_stack(FILE *fpb, char *key, char *targetKey, int k) {
         for (; j < NumKeys; j++) {
             if (Ch == NonLeafSymbol) {
                 fread(&PgNum, sizeof(PgNum), 1, fpb);
-                //     printf("NextPage:%d, ", (int) PgNum);
+                //     //printf("NextPage:%d, ", (int) PgNum);
                 fread(&KeyLen, sizeof(KeyLen), 1, fpb);
                 fread(key, sizeof(char), KeyLen, fpb);
                 (*(key + KeyLen)) = '\0';
-                //   printf("key:%s, ", key);
-                //    printf("length:%d\n", KeyLen);
+                //   //printf("key:%s, ", key);
+                //    //printf("length:%d\n", KeyLen);
                 int Result = CompareKeys(key, targetKey);
-                //  printf("\nkey:%s\ttarget:%s\n", key, targetKey);
+                //  //printf("\nkey:%s\ttarget:%s\n", key, targetKey);
                 if (Result == 1) {
-                       printf("-------------pushing key:%s\n",key);
+                    //printf("-------------pushing key:%s\n", key);
                     push(PgNum);
                 }
             }
             if (Ch == LeafSymbol) {
                 fread(&KeyLen, sizeof(KeyLen), 1, fpb);
-                //  printf("Keylength:%d, ", KeyLen);
+                //  //printf("Keylength:%d, ", KeyLen);
                 fflush(stdout);
                 fread(key, sizeof(char), KeyLen, fpb);
                 (*(key + KeyLen)) = '\0';
                 if (CompareKeys(key, targetKey) == 1) {
-                    printf("\n--------------------\t\t------key:%s, ", key);
+                    //printf("\n--------------------\t\t------key:%s, ", key);
                     strcpy(values[j], key);
                     hits++;
                     //  --k;
                 }
                 fread(&PostOffset, sizeof(PostOffset), 1, fpb);
-                //   printf("Postings offset:%d\n", (int) PostOffset);
+                //   //printf("Postings offset:%d\n", (int) PostOffset);
 
             }
         }
         if (Ch == NonLeafSymbol) {
-            push(PtrToFinalRtgPg);
+            if (homePage != PtrToFinalRtgPg) {
+                push(PtrToFinalRtgPg);
+            }
         }
+
+        //printf("--hits:%d\n", hits);
+
         int p = hits - 1;
-        for (; p < hits && k > 0; p++) {
-        //for (; p >= 0 && k > 0; p--) {
-           // printf("\n----------***------arr:%s, ", values[p]);
+        for (; p >= 0 && k > 0; p--) {
+            printf("\n----------***------arr:%s", values[p]);
             --k;
         }
+
     }
 
 }
@@ -190,47 +200,47 @@ void build_pred_list(char *key, int k, FILE *fpb) {
     char Ch;
     PAGENO PtrToNxtLfPg, PtrToFinalRtgPg, PgNum;
     PAGENO i = head->value;
-    //printf("printing i:%ld\n", i);
+    ////printf("printing i:%ld\n", i);
     fseek(fpb, (long) (i - 1) * PAGESIZE, 0);
     fread(&Ch, sizeof(Ch), 1, fpb);
     if (feof(fpb) != 0)
         exit(0);
-    //printf("Leafstatus:%c\n", Ch);
+    ////printf("Leafstatus:%c\n", Ch);
     fread(&PgNum, sizeof(PgNum), 1, fpb);
-    //printf("Page#:%d\n", (int) PgNum);
+    ////printf("Page#:%d\n", (int) PgNum);
     if (Ch == LeafSymbol) {
         fread(&PtrToNxtLfPg, sizeof(PtrToNxtLfPg), 1, fpb);
-        //  //printf("PtrtoNextLeafPage:%d\n", (int) PtrToNxtLfPg);
+        //  ////printf("PtrtoNextLeafPage:%d\n", (int) PtrToNxtLfPg);
     }
     fread(&NumBytes, sizeof(NumBytes), 1, fpb);
-    ////printf("Number of bytes occcupied:%d\n", NumBytes);
+    //////printf("Number of bytes occcupied:%d\n", NumBytes);
     fread(&NumKeys, sizeof(NumKeys), 1, fpb);
-    //printf("Number of keys:%d\n", NumKeys);
+    ////printf("Number of keys:%d\n", NumKeys);
     if (Ch == NonLeafSymbol) {
         fread(&PtrToFinalRtgPg, sizeof(PtrToFinalRtgPg), 1, fpb);
-        //printf("PtrToFinalRtgPg%d\n", (int) PtrToFinalRtgPg);
+        ////printf("PtrToFinalRtgPg%d\n", (int) PtrToFinalRtgPg);
     }
     for (j = 0; j < NumKeys; j++) {
         if (Ch == NonLeafSymbol) {
             fread(&PgNum, sizeof(PgNum), 1, fpbtree);
-            //printf("NextPage:%d, ", (int) PgNum);
+            ////printf("NextPage:%d, ", (int) PgNum);
             fread(&KeyLen, sizeof(KeyLen), 1, fpbtree);
             fread(key, sizeof(char), KeyLen, fpbtree);
             (*(key + KeyLen)) = '\0';
-            //printf("key:%s, ", key);
-            //printf("length:%d\n", KeyLen);
+            ////printf("key:%s, ", key);
+            ////printf("length:%d\n", KeyLen);
         }
         if (Ch == LeafSymbol) {
             fread(&KeyLen, sizeof(KeyLen), 1, fpbtree);
-            //printf("Keylength:%d, ", KeyLen);
+            ////printf("Keylength:%d, ", KeyLen);
             fread(key, sizeof(char), KeyLen, fpbtree);
             (*(key + KeyLen)) = '\0';
-            //printf("key:%s, ", key);
+            ////printf("key:%s, ", key);
             fread(&PostOffset, sizeof(PostOffset), 1, fpbtree);
-            //printf("Postings offset:%d\n", (int) PostOffset);
+            ////printf("Postings offset:%d\n", (int) PostOffset);
         }
     }
-    //printf("\n");
+    ////printf("\n");
 
 }
 
@@ -248,7 +258,7 @@ void create() {
 
 /* Count stack elements */
 void stack_count() {
-    //printf("\n No. of elements in stack : %d", count);
+    ////printf("\n No. of elements in stack : %d", count);
 }
 
 /* Push data into stack */
@@ -272,12 +282,12 @@ PAGENO pop() {
     top1 = top;
 
     if (top1 == NULL) {
-        //printf("\n Error : Trying to pop from empty stack");
+        ////printf("\n Error : Trying to pop from empty stack");
         return -1;
     }
     else
         top1 = top1->ptr;
-    //printf("\n Popped value : %ld", top->info);
+    ////printf("\n Popped value : %ld", top->info);
     PAGENO saved = top->info;
     //free(top);
     top = top1;
@@ -292,11 +302,11 @@ PAGENO topelement() {
 
 int empty() {
     if (top == NULL) {
-        //printf("\n Stack is empty");
+        ////printf("\n Stack is empty");
         return 1;
     }
     else {
-        //printf("\n Stack is not empty with %d elements", count);
+        ////printf("\n Stack is not empty with %d elements", count);
         return 0;
     }
 }
@@ -305,13 +315,13 @@ void display() {
     top1 = top;
 
     if (top1 == NULL) {
-        printf("Stack is empty");
+        //printf("Stack is empty");
         return;
     }
-    printf("\nStack data:\n");
+    //printf("\nStack data:\n");
     while (top1 != NULL) {
-        printf("%ld ", top1->info);
+        //printf("%ld ", top1->info);
         top1 = top1->ptr;
     }
-    printf("\n");
+    //printf("\n");
 }
