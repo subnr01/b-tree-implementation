@@ -21,7 +21,15 @@ extern struct PageHdr *FetchPage(PAGENO Page);
 
 extern struct node *head;
 
-void pritnLL(struct node *pNode);
+void printLL(struct node *pNode);
+
+void createstackfromLL(struct node *pNode);
+
+extern struct stacknode *top, *top1, *temp;
+
+extern void push(PAGENO data);
+
+extern void display();
 
 /**
 * recursive call to find the page in which the key should reside
@@ -80,20 +88,14 @@ PAGENO treesearch_page_buildLL(int PageNo, char *key, struct node *root) { // RO
     PAGENO result;
     struct PageHdr *PagePtr = FetchPage(PageNo);
     if (PagePtr != NULL) {
-        //printf("\ntree search - pgnum:%ld", PagePtr->PgNum);
         root = (struct node *) malloc(sizeof(struct node *));
         root->value = PagePtr->PgNum;
         root->next = head;
-        //printf("root inside:%ld\n", root->value);
         head = root;
-        //printf("head inside:%ld\n", head->value);
     }
     if (IsLeaf(PagePtr)) { /* found leaf */
         result = PageNo;
         head = root;
-        /*printf("root final:%ld\n", root->value);
-        printf("head final:%ld\n", head->value);*/
-       /// pritnLL(head);
     } else if ((IsNonLeaf(PagePtr)) && (PagePtr->NumKeys == 0)) {
         /* keys, if any, will be stored in Page# 2
            THESE PIECE OF CODE SHOULD GO soon! **/
@@ -109,9 +111,19 @@ PAGENO treesearch_page_buildLL(int PageNo, char *key, struct node *root) { // RO
     return result;
 }
 
-void pritnLL(struct node *pNode) {
-    while (pNode) {
+void printLL(struct node *pNode) {
+    /*while (pNode) {
         printf("List of pages--:%ld\n", pNode->value);
         pNode = pNode->next;
+    }*/
+    //createstackfromLL(pNode);
+   // display();
+
+}
+
+void createstackfromLL(struct node *pNode) {
+    if (pNode) {
+        createstackfromLL(pNode->next);
+        push(pNode->value);
     }
 }

@@ -91,3 +91,9 @@ struct node {
     PAGENO value;
     struct node *next;
 };
+
+typedef struct stack {
+    PAGENO data;
+    struct stack *next;
+} stackNode;
+
