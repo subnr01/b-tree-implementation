@@ -65,6 +65,7 @@ int main(int argc, char **argv) {
     int goOn;
     int k;
 
+    char *result[100];
     setparms(); /* reads the pagesize and the number of ptrs/postigs_record */
     dbopen();   /* opens or creates the three files (btree, postings, text) */
 

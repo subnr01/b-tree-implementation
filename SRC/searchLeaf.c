@@ -9,7 +9,7 @@
 
 #include "def.h"
 
-POSTINGSPTR searchLeaf(struct PageHdr *PagePtr, char *key) {
+POSTINGSPTR searchLeaf(struct PageHdr *PagePtr, char *key, int printFlag) {
 
     struct KeyRecord *KeyListTraverser;
     int InsertionPosition; /* Position for insertion */
@@ -28,7 +28,9 @@ POSTINGSPTR searchLeaf(struct PageHdr *PagePtr, char *key) {
     if (Found == TRUE) {
         for (i = 0; i < InsertionPosition - 1; i++)
             KeyListTraverser = KeyListTraverser->Next;
-        printf("found in %s\n", KeyListTraverser->StoredKey);
+        if(printFlag) {
+            printf("found in %s\n", KeyListTraverser->StoredKey);
+        }
         return (KeyListTraverser->Posting);
     } else {
         return (NONEXISTENT);

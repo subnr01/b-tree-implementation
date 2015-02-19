@@ -32,7 +32,7 @@ int printLeaf(struct PageHdr *p, int initialFlag, char *key, int k) {
 
     int no_of_elements_removed = 0;
     while (k > 0 && keyptr != NULL) {
-        printf("\n%s", keyptr->StoredKey);
+        printf("%s\n", keyptr->StoredKey);
         keyptr = keyptr->Next;
         k--;
         no_of_elements_removed++;

@@ -9,7 +9,7 @@
 
 #include "def.h"
 
-extern POSTINGSPTR searchLeaf(struct PageHdr *PagePtr, char *key);
+extern POSTINGSPTR searchLeaf(struct PageHdr *PagePtr, char *key, int printFlag);
 extern int FreePage(struct PageHdr *PagePtr);
 extern PAGENO FindPageNumOfChild(struct PageHdr *PagePtr,
                                  struct KeyRecord *KeyListTraverser, char *Key,
@@ -51,7 +51,7 @@ POSTINGSPTR treesearch(PAGENO PageNo, char *key) {
     const PAGENO page = treesearch_page(PageNo, key);
     /* from page number we traverse the leaf page */
     struct PageHdr *PagePtr = FetchPage(page);
-    POSTINGSPTR result = searchLeaf(PagePtr, key);
+    POSTINGSPTR result = searchLeaf(PagePtr, key, 1);
     FreePage(PagePtr);
     return result;
 }
