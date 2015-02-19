@@ -48,6 +48,7 @@ int get_successors(char *key, int k, char *result[]) {
     total -= retrieved;
 //    printf("\ninitial ret:%d", retrieved);
 // todo printing found 26 successors and then the keys!
+    // todo segfaulting for the key 'aa' - the initial key
     while (total > 0 && (PagePtr->PgNumOfNxtLfPg) != NULLPAGENO) {
         struct PageHdr *temp = PagePtr;
         PagePtr = FetchPage(temp->PgNumOfNxtLfPg);

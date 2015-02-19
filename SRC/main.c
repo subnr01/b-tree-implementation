@@ -132,7 +132,7 @@ int main(int argc, char **argv) {
                 scanf("%s", word);
                 printf("k=?\n");
                 scanf("%d", &k);
-                printf("IMPLEMENT  ME!\n");
+                get_predecessors(word, k, result);
                 break;
             case 'T':
                 printf("\n*** Printing tree in order .........\n");

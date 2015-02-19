@@ -86,3 +86,8 @@ struct upKey {
 	PAGENO		right;	/* right page, with keys > */
 	char *		key;
 };
+
+struct node {
+    PAGENO value;
+    struct node *next;
+};
