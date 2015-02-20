@@ -47,7 +47,7 @@ extern void printOcc(struct KeyRecord *p);
 
 extern int get_predecessors(char *key, int k, char *result[]);
 
-extern int get_successors(char *key, int k, char *result[]);
+extern int get_successors(char *targetKey, int k, char *result[]);
 
 extern char **create_string_array(size_t n);
 

@@ -5,6 +5,8 @@
 
 typedef void (*RecordVisitor)(struct KeyRecord *);
 
+int CompareKeys(char *Key, char *Word);
+
 void scanLeaf(struct PageHdr *p, RecordVisitor f) {
     struct KeyRecord *keyptr;
 
@@ -18,24 +20,18 @@ void scanLeaf(struct PageHdr *p, RecordVisitor f) {
 
 
 int printLeaf(struct PageHdr *p, int initialFlag, char *key, int k) {
-    struct KeyRecord *keyptr;
-    keyptr = p->KeyListPtr;
-    if (initialFlag) {
-        while (keyptr != NULL) {
-            keyptr = keyptr->Next;
-            if (strcmp(key, keyptr->StoredKey) == 0) {
-                keyptr = keyptr->Next;
-                break;
-            }
-        }
+    struct KeyRecord *keyptr = (struct KeyRecord *) malloc(sizeof(struct KeyRecord *));
+    if (p != NULL) {
+        keyptr = p->KeyListPtr;
     }
-
     int no_of_elements_removed = 0;
     while (k > 0 && keyptr != NULL) {
-        printf("%s\n", keyptr->StoredKey);
+        if(CompareKeys(keyptr->StoredKey, key) == 2) {
+            printf("%s\n", keyptr->StoredKey);
+            k--;
+            no_of_elements_removed++;
+        }
         keyptr = keyptr->Next;
-        k--;
-        no_of_elements_removed++;
     }
 
     fflush(stdout);

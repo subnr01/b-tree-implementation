@@ -53,6 +53,22 @@ void create();
 int count = 0;
 
 int get_predecessors(char *key, int k, char *result[]) {
+    if (k < 0) {
+        printf("k should be positive not %d", k);
+        return -1;
+    }
+
+    if (strlen(key) > MAXWORDSIZE) {
+        printf("ERROR in \"get_predecessors\":  Length of Word Exceeds Maximum Allowed\n");
+        printf(" and word May Be Truncated\n");
+        return -1;
+    }
+
+    if (check_word(key) == FALSE) {
+        return -1;
+    }
+    strtolow(key);
+
     search_build_list(key, k, FALSE);
 
     return 0;

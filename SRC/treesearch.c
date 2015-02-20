@@ -38,9 +38,9 @@ extern void display();
 PAGENO treesearch_page(PAGENO PageNo, char *key) { // ROOT, word
     PAGENO result;
     struct PageHdr *PagePtr = FetchPage(PageNo);
-    if (PagePtr != NULL) {
+    /*if (PagePtr != NULL) {
         printf("\ntree search - pgnum:%ld", PagePtr->PgNum);
-    }
+    }*/
     if (IsLeaf(PagePtr)) { /* found leaf */
         result = PageNo;
     } else if ((IsNonLeaf(PagePtr)) && (PagePtr->NumKeys == 0)) {
@@ -72,15 +72,6 @@ POSTINGSPTR treesearch(PAGENO PageNo, char *key) {
     POSTINGSPTR result = searchLeaf(PagePtr, key, 1);
     FreePage(PagePtr);
     return result;
-}
-
-struct PageHdr *treesearch_pageHdr(PAGENO PageNo, char *key) {
-    /* recursive call to find page number */
-    const PAGENO page = treesearch_page(PageNo, key);
-    /* from page number we traverse the leaf page */
-    struct PageHdr *PagePtr = FetchPage(page);
-    //FreePage(PagePtr);
-    return PagePtr;
 }
 
 
