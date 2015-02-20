@@ -18,7 +18,11 @@ extern int printLeaf(struct PageHdr *p, int initialLeaf, char *key, int k);
 
 extern PAGENO treesearch_page(PAGENO PageNo, char *key);
 
+extern char **create_string_array(size_t n);
+
 extern FILE *fpbtree;
+char **global_arr_succ;
+int global_succ_count = 0;
 
 int get_successors(char *targetKey, int k, char *result[]) {
     /* Print an error message if strlen(key) > MAXWORDSIZE */
@@ -46,6 +50,7 @@ int get_successors(char *targetKey, int k, char *result[]) {
 
     /* turn to lower case, for uniformity */
     strtolow(targetKey);
+    global_arr_succ = create_string_array(k);
 
     PAGENO pgno = treesearch_page(ROOT, targetKey);
     struct PageHdr *PagePtr = FetchPage(pgno);
@@ -64,8 +69,12 @@ int get_successors(char *targetKey, int k, char *result[]) {
             fread(key, sizeof(char), KeyLen, fpbtree);
             (*(key + KeyLen)) = '\0';
             if (CompareKeys(key, targetKey) == 2 && k > 0) {
-                printf("%s\n", key);
+                //      printf("%s\n", key);
                 k--;
+                strcpy(global_arr_succ[global_succ_count], key);
+             //   printf("in:%d\n",global_succ_count);
+                fflush(stdout);
+                global_succ_count++;
             }
             fread(&PostOffset, sizeof(PostOffset), 1, fpbtree);
         }
@@ -81,5 +90,14 @@ int get_successors(char *targetKey, int k, char *result[]) {
         total -= retrieved;
     }
 
-    return 0;
+    int g = 0;
+    int f = (global_succ_count - 1);
+    printf("found %d successors:\n", f + 1);
+    for (; g <= f; g++) {
+        printf("%s\n", global_arr_succ[g]);
+    }
+    free(global_arr_succ);
+    global_succ_count = 0;
+
+    return f;
 }
