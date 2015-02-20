@@ -23,11 +23,11 @@ extern void createstackfromLL(struct node *pNode);
 
 struct node *head = NULL;
 
-void search_build_list(char *key, int k, int flag);
+int search_build_list(char *key, int k, int flag);
 
 void clearHeadPtr();
 
-void iterate_stack(FILE *fpb, char *key, char *targetKey, int k);
+int iterate_stack(FILE *fpb, char *key, char *targetKey, int k);
 
 struct stacknode {
     PAGENO info;
@@ -69,13 +69,12 @@ int get_predecessors(char *key, int k, char *result[]) {
     }
     strtolow(key);
 
-    search_build_list(key, k, FALSE);
+    return search_build_list(key, k, FALSE);
 
-    return 0;
 }
 
 
-void search_build_list(char *key, int k, int flag) {
+int search_build_list(char *key, int k, int flag) {
     POSTINGSPTR pptr;
     /* Print an error message if strlen(key) > MAXWORDSIZE */
     if (strlen(key) > MAXWORDSIZE) {
@@ -84,15 +83,16 @@ void search_build_list(char *key, int k, int flag) {
     }
     if (iscommon(key)) {
         //printf("\"%s\" is a common word - no searching is done\n", key);
-        return;
+        return 0;
     }
     if (check_word(key) == FALSE) {
-        return;
+        return 0;
     }
     /* turn to lower case, for uniformity */
     strtolow(key);
     struct node *root = NULL;
     pptr = treesearch_page_buildLL(ROOT, key, root);
+    int number_of_predecessors;
     if (pptr == NONEXISTENT) {
         //printf("key \"%s\": not found\n", key);
     } else {
@@ -102,20 +102,21 @@ void search_build_list(char *key, int k, int flag) {
             createstackfromLL(head);
             //display();
             char temp[MAXWORDSIZE];
-            iterate_stack(fpbtree, temp, key, k);
+            number_of_predecessors = iterate_stack(fpbtree, temp, key, k);
         }
         clearHeadPtr();
     }
+    return number_of_predecessors;
 }
 
-void iterate_stack(FILE *fpb, char *key, char *targetKey, int k) {
+int iterate_stack(FILE *fpb, char *key, char *targetKey, int k) {
     char Ch;
     POSTINGSPTR PostOffset;
     PAGENO PgNum, PtrToNxtLfPg, PtrToFinalRtgPg;
     NUMKEYS NumKeys;
     KEYLEN KeyLen;
     NUMBYTES NumBytes;
-    int homePage, isHome = 0;
+    int homePage, isHome = 0, number_of_predecessors = 0;
     while (!empty() && k > 0) {
         //display();
         PAGENO curr = pop();
@@ -184,9 +185,12 @@ void iterate_stack(FILE *fpb, char *key, char *targetKey, int k) {
         int p = hits - 1;
         for (; p >= 0 && k > 0; p--) {
             printf("\n%s", values[p]);
+            number_of_predecessors++;
             --k;
         }
+        printf("\n++++++++++\n");
     }
+    return number_of_predecessors;
 }
 
 void clearHeadPtr() {

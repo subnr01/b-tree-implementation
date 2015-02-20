@@ -21,7 +21,6 @@ extern PAGENO treesearch_page(PAGENO PageNo, char *key);
 extern FILE *fpbtree;
 
 int get_successors(char *targetKey, int k, char *result[]) {
-
     /* Print an error message if strlen(key) > MAXWORDSIZE */
     POSTINGSPTR PostOffset;
     NUMKEYS NumKeys;
@@ -64,7 +63,7 @@ int get_successors(char *targetKey, int k, char *result[]) {
             fread(&KeyLen, sizeof(KeyLen), 1, fpbtree);
             fread(key, sizeof(char), KeyLen, fpbtree);
             (*(key + KeyLen)) = '\0';
-            if (CompareKeys(key, targetKey) == 2) {
+            if (CompareKeys(key, targetKey) == 2 && k > 0) {
                 printf("%s\n", key);
                 k--;
             }
