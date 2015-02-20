@@ -72,39 +72,24 @@ int get_predecessors(char *key, int k, char *result[]) {
     strtolow(key);
 
     int r = search_build_list(key, k, FALSE);
-    //printf("found %d predecessors:", r);
     return r;
 }
 
 
 int search_build_list(char *key, int k, int flag) {
     POSTINGSPTR pptr;
-    /* Print an error message if strlen(key) > MAXWORDSIZE */
-    if (strlen(key) > MAXWORDSIZE) {
-        ////printf("ERROR in \"search\":  Length of key Exceeds Maximum Allowed\n");
-        ////printf(" and key May Be Truncated\n");
-    }
-    if (iscommon(key)) {
-        ////printf("\"%s\" is a common word - no searching is done\n", key);
-        return 0;
-    }
-    if (check_word(key) == FALSE) {
-        return 0;
-    }
-    /* turn to lower case, for uniformity */
-    strtolow(key);
+
     struct node *root = NULL;
     pptr = treesearch_page_buildLL(ROOT, key, root);
     int number_of_predecessors;
 
     if (pptr == NONEXISTENT) {
-        ////printf("key \"%s\": not found\n", key);
+        printf("key \"%s\": not found\n", key);
     } else {
         if (flag) {
             getpostings(pptr);
         } else {
             createstackfromLL(head);
-            //display();
             char temp[MAXWORDSIZE];
             number_of_predecessors = iterate_stack(fpbtree, temp, key, k);
         }
@@ -124,7 +109,6 @@ int iterate_stack(FILE *fpb, char *key, char *targetKey, int k) {
     NUMBYTES NumBytes;
     int homePage, isHome = 0, number_of_predecessors = 0;
     while (!empty() && k > 0) {
-        //display();
         PAGENO curr = pop();
         if (!isHome) {
             isHome = 1;
@@ -135,19 +119,13 @@ int iterate_stack(FILE *fpb, char *key, char *targetKey, int k) {
         if (feof(fpbtree) != 0)
             exit(0);
         fread(&PgNum, sizeof(PgNum), 1, fpb);
-        ////printf("Page#:%d\n", (int) PgNum);
         if (Ch == LeafSymbol) {
             fread(&PtrToNxtLfPg, sizeof(PtrToNxtLfPg), 1, fpb);
-            ////printf("PtrtoNextLeafPage:%d\n", (int) PtrToNxtLfPg);
         }
         fread(&NumBytes, sizeof(NumBytes), 1, fpb);
-        //////printf("Number of bytes occcupied:%d\n", NumBytes);
         fread(&NumKeys, sizeof(NumKeys), 1, fpb);
-        ////printf("Number of keys:%d\n", NumKeys);
-        //struct PageHdr *PagePtr = FetchPage(curr);
         if (Ch == NonLeafSymbol) {
             fread(&PtrToFinalRtgPg, sizeof(PtrToFinalRtgPg), 1, fpb);
-            ////printf("********\t*******PtrToFinalRtgPg%d\n", (int) PtrToFinalRtgPg);
         }
         char values[NumKeys][MAXWORDSIZE];
 
@@ -155,32 +133,22 @@ int iterate_stack(FILE *fpb, char *key, char *targetKey, int k) {
         for (; j < NumKeys; j++) {
             if (Ch == NonLeafSymbol) {
                 fread(&PgNum, sizeof(PgNum), 1, fpb);
-                //     ////printf("NextPage:%d, ", (int) PgNum);
                 fread(&KeyLen, sizeof(KeyLen), 1, fpb);
                 fread(key, sizeof(char), KeyLen, fpb);
                 (*(key + KeyLen)) = '\0';
-                //   ////printf("key:%s, ", key);
-                //    ////printf("length:%d\n", KeyLen);
                 int Result = CompareKeys(key, targetKey);
-                //  ////printf("\nkey:%s\ttarget:%s\n", key, targetKey);
                 if (Result == 1) {
-                    ////printf("-------------pushing key:%s\n", key);
                     push(PgNum);
                 }
             }
             if (Ch == LeafSymbol) {
                 fread(&KeyLen, sizeof(KeyLen), 1, fpb);
-                //  ////printf("Keylength:%d, ", KeyLen);
                 fflush(stdout);
                 fread(key, sizeof(char), KeyLen, fpb);
                 (*(key + KeyLen)) = '\0';
                 if (CompareKeys(key, targetKey) == 1) {
-                    ////printf("\n--------------------\t\t------key:%s, ", key);
                     strcpy(values[j], key);
-                    // strcpy(finals[start + j], key);
-                    // //printf("start + j:%d\n", (start + j));
                     hits++;
-                    //  --k;
                 }
                 fread(&PostOffset, sizeof(PostOffset), 1, fpb);
             }
@@ -190,11 +158,9 @@ int iterate_stack(FILE *fpb, char *key, char *targetKey, int k) {
                 push(PtrToFinalRtgPg);
             }
         }
-        ////printf("--hits:%d\n", hits);
         int p = hits - 1;
 
         for (; p >= 0 && k > 0; p--) {
-            //printf("\n%s", values[p]);
             number_of_predecessors++;
             strcpy(global_arr[global_ptr], values[p]);
             global_ptr++;

@@ -18,15 +18,3 @@ char **create_string_array(size_t n) {
     return retval;
 }
 
-void sort_string_array(char **arr, size_t n) {
-    qsort(arr, n, sizeof(char *), &cmp);
-}
-
-void free_string_array(char **arr, size_t n) {
-    assert(n > 0);
-    int i;
-    for (i = 0; i < n; ++i) {
-        free(arr[i]);
-    }
-    free(arr);
-}

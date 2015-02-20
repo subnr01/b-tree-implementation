@@ -6,8 +6,10 @@
 typedef void (*RecordVisitor)(struct KeyRecord *);
 
 int CompareKeys(char *Key, char *Word);
+
 extern char **global_arr_succ;
 extern int global_succ_count;
+
 void scanLeaf(struct PageHdr *p, RecordVisitor f) {
     struct KeyRecord *keyptr;
 
@@ -20,20 +22,17 @@ void scanLeaf(struct PageHdr *p, RecordVisitor f) {
 }
 
 
-int printLeaf(struct PageHdr *p, int initialFlag, char *key, int k) {
+int printLeaf(struct PageHdr *p, char *key, int k) {
     struct KeyRecord *keyptr = (struct KeyRecord *) malloc(sizeof(struct KeyRecord *));
     if (p != NULL) {
         keyptr = p->KeyListPtr;
     }
     int no_of_elements_removed = 0;
     while (k > 0 && keyptr != NULL) {
-        if(CompareKeys(keyptr->StoredKey, key) == 2) {
-          //  printf("%s\n", keyptr->StoredKey);
+        if (CompareKeys(keyptr->StoredKey, key) == 2) {
             k--;
             no_of_elements_removed++;
             strcpy(global_arr_succ[global_succ_count], keyptr->StoredKey);
-      //      printf("out:%d\n",global_succ_count);
-     //       fflush(stdout);
             global_succ_count++;
         }
         keyptr = keyptr->Next;

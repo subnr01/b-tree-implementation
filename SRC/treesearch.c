@@ -21,15 +21,11 @@ extern struct PageHdr *FetchPage(PAGENO Page);
 
 extern struct node *head;
 
-void printLL(struct node *pNode);
-
 void createstackfromLL(struct node *pNode);
 
 extern struct stacknode *top, *top1, *temp;
 
 extern void push(PAGENO data);
-
-extern void display();
 
 /**
 * recursive call to find the page in which the key should reside
@@ -102,14 +98,6 @@ PAGENO treesearch_page_buildLL(int PageNo, char *key, struct node *root) { // RO
     return result;
 }
 
-void printLL(struct node *pNode) {
-    /*while (pNode) {
-        printf("List of pages--:%ld\n", pNode->value);
-        pNode = pNode->next;
-    }*/
-    //createstackfromLL(pNode);
-   // display();
-}
 
 void createstackfromLL(struct node *pNode) {
     if (pNode) {

@@ -1,3 +1,4 @@
+#include <cuda_runtime_api.h>
 #include "def.h"
 
 extern int check_word(char *word);
@@ -14,7 +15,7 @@ extern struct PageHdr *FetchPage(PAGENO Page);
 
 extern int FreePage(struct PageHdr *PagePtr);
 
-extern int printLeaf(struct PageHdr *p, int initialLeaf, char *key, int k);
+extern int printLeaf(struct PageHdr *p, char *key, int k);
 
 extern PAGENO treesearch_page(PAGENO PageNo, char *key);
 
@@ -69,10 +70,8 @@ int get_successors(char *targetKey, int k, char *result[]) {
             fread(key, sizeof(char), KeyLen, fpbtree);
             (*(key + KeyLen)) = '\0';
             if (CompareKeys(key, targetKey) == 2 && k > 0) {
-                //      printf("%s\n", key);
                 k--;
                 strcpy(global_arr_succ[global_succ_count], key);
-             //   printf("in:%d\n",global_succ_count);
                 fflush(stdout);
                 global_succ_count++;
             }
@@ -81,12 +80,11 @@ int get_successors(char *targetKey, int k, char *result[]) {
     }
 
     int total = k, retrieved = 0;
-
     while (total > 0 && (PagePtr->PgNumOfNxtLfPg) != NULLPAGENO) {
         struct PageHdr *temp = PagePtr;
         PagePtr = FetchPage(temp->PgNumOfNxtLfPg);
         FreePage(temp);
-        retrieved = printLeaf(PagePtr, 0, targetKey, total);
+        retrieved = printLeaf(PagePtr, targetKey, total);
         total -= retrieved;
     }
 
