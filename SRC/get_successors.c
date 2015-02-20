@@ -1,4 +1,3 @@
-#include <cuda_runtime_api.h>
 #include "def.h"
 
 extern int check_word(char *word);
@@ -21,6 +20,8 @@ extern PAGENO treesearch_page(PAGENO PageNo, char *key);
 
 extern char **create_string_array(size_t n);
 
+extern long int ffsize(FILE *fp);
+
 extern FILE *fpbtree;
 char **global_arr_succ;
 int global_succ_count = 0;
@@ -38,7 +39,10 @@ int get_successors(char *targetKey, int k, char *result[]) {
         printf("k should be positive not %d", k);
         return -1;
     }
-
+    if (targetKey == NULL) {
+        printf("ERROR key cannot be NULL\n");
+        return -1;
+    }
     if (strlen(targetKey) > MAXWORDSIZE) {
         printf("ERROR in \"get_successors\":  Length of Word Exceeds Maximum Allowed\n");
         printf(" and word May Be Truncated\n");
@@ -46,15 +50,35 @@ int get_successors(char *targetKey, int k, char *result[]) {
     }
 
     if (check_word(targetKey) == FALSE) {
+        printf("ERROR key doesn't contain only alphanumerics\n");
         return -1;
     }
+
 
     /* turn to lower case, for uniformity */
     strtolow(targetKey);
     global_arr_succ = create_string_array(k);
 
     PAGENO pgno = treesearch_page(ROOT, targetKey);
+
+    if (pgno < 1) {
+        printf("ERROR page numbers start from 1 and on\n");
+        return -1;
+    }
     struct PageHdr *PagePtr = FetchPage(pgno);
+
+    if (PagePtr == NULL) {
+        printf("ERROR PagePtr is NULL\n");
+        return -1;
+    }
+    if (fpbtree == NULL) {
+        printf("ERROR fbp is NULL\n");
+        return -1;
+    }
+    if (ffsize(fpbtree) <= (pgno - 1) * PAGESIZE) { /* illegal page number */
+        printf("ERROR page numbers start from 1 and not exceed the last one \n");
+        return -1;
+    }
 
     fseek(fpbtree, (long) (pgno - 1) * PAGESIZE, 0);
     fread(&Ch, sizeof(Ch), 1, fpbtree);

@@ -27,6 +27,10 @@ int search_build_list(char *key, int k, int flag);
 
 void clearHeadPtr();
 
+int checkProcessedBefore(PAGENO target, PAGENO pInt[], int max);
+
+extern long int ffsize(FILE *fp);
+
 int iterate_stack(FILE *fpb, char *key, char *targetKey, int k);
 
 struct stacknode {
@@ -60,6 +64,10 @@ int get_predecessors(char *key, int k, char *result[]) {
         return -1;
     }
 
+    if (key == NULL) {
+        printf("ERROR key cannot be NULL\n");
+        return -1;
+    }
     if (strlen(key) > MAXWORDSIZE) {
         printf("ERROR in \"get_predecessors\":  Length of Word Exceeds Maximum Allowed\n");
         printf(" and word May Be Truncated\n");
@@ -67,6 +75,7 @@ int get_predecessors(char *key, int k, char *result[]) {
     }
 
     if (check_word(key) == FALSE) {
+        printf("ERROR key doesn't contain only alphanumerics\n");
         return -1;
     }
     strtolow(key);
@@ -79,22 +88,20 @@ int get_predecessors(char *key, int k, char *result[]) {
 int search_build_list(char *key, int k, int flag) {
     POSTINGSPTR pptr;
 
-    struct node *root = NULL;
+    struct node *root = NULL; //todo NULL
     pptr = treesearch_page_buildLL(ROOT, key, root);
+
     int number_of_predecessors;
 
-    if (pptr == NONEXISTENT) {
-        printf("key \"%s\": not found\n", key);
+    if (flag) {
+        getpostings(pptr);
     } else {
-        if (flag) {
-            getpostings(pptr);
-        } else {
-            createstackfromLL(head);
-            char temp[MAXWORDSIZE];
-            number_of_predecessors = iterate_stack(fpbtree, temp, key, k);
-        }
-        clearHeadPtr();
+        createstackfromLL(head);
+        char temp[MAXWORDSIZE];
+        number_of_predecessors = iterate_stack(fpbtree, temp, key, k);
     }
+    clearHeadPtr();
+
     return number_of_predecessors;
 }
 
@@ -107,14 +114,26 @@ int iterate_stack(FILE *fpb, char *key, char *targetKey, int k) {
     NUMKEYS NumKeys;
     KEYLEN KeyLen;
     NUMBYTES NumBytes;
-    int homePage, isHome = 0, number_of_predecessors = 0;
+    int number_of_predecessors = 0;
+    PAGENO cal[k];
+    int calCounter = 0;
     while (!empty() && k > 0) {
         PAGENO curr = pop();
-        if (!isHome) {
-            isHome = 1;
-            homePage = curr;
+        cal[calCounter++] = curr;
+        if (curr < 1) {
+            printf("ERROR page numbers start from 1 and on\n");
+            return -1;
         }
-        fseek(fpbtree, (long) (curr - 1) * PAGESIZE, 0);
+        if (fpb == NULL) {
+            printf("ERROR fbp is NULL\n");
+            return -1;
+        }
+        if (ffsize(fpb) <= (curr - 1) * PAGESIZE) { /* illegal page number */
+            printf("ERROR page numbers start from 1 and not exceed the last one \n");
+            return -1;
+        }
+
+        fseek(fpb, (long) (curr - 1) * PAGESIZE, 0);
         fread(&Ch, sizeof(Ch), 1, fpb);
         if (feof(fpbtree) != 0)
             exit(0);
@@ -154,7 +173,7 @@ int iterate_stack(FILE *fpb, char *key, char *targetKey, int k) {
             }
         }
         if (Ch == NonLeafSymbol) {
-            if (homePage != PtrToFinalRtgPg) {
+            if (!checkProcessedBefore(PtrToFinalRtgPg, cal, calCounter)) {
                 push(PtrToFinalRtgPg);
             }
         }
@@ -166,6 +185,7 @@ int iterate_stack(FILE *fpb, char *key, char *targetKey, int k) {
             global_ptr++;
             --k;
         }
+
     }
     int g = global_ptr - 1;
     printf("found %d predecessors:\n", number_of_predecessors);
@@ -174,6 +194,16 @@ int iterate_stack(FILE *fpb, char *key, char *targetKey, int k) {
     }
     fflush(stdout);
     return number_of_predecessors;
+}
+
+int checkProcessedBefore(PAGENO target, PAGENO pInt[], int max) {
+    int i = 0;
+    for (; i < max; i++) {
+        if (pInt[i] == target) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 void clearHeadPtr() {
@@ -250,8 +280,9 @@ void display() {
     }
     //printf("\nStack data:\n");
     while (top1 != NULL) {
-        //printf("%ld ", top1->info);
+        printf("%ld ", top1->info);
         top1 = top1->ptr;
     }
-    //printf("\n");
+    printf("\n");
 }
+

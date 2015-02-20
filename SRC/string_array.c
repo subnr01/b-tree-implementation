@@ -2,9 +2,9 @@
 
 #define WORD_LEN (30)
 
-static int cmp(const void *a, const void *b) {
+/*static int cmp(const void *a, const void *b) {
     return strcmp(*((char **) a), *((char **) b));
-}
+}*/
 
 char **create_string_array(size_t n) {
     assert(n > 0);

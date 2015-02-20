@@ -71,8 +71,8 @@ POSTINGSPTR treesearch(PAGENO PageNo, char *key) {
 }
 
 
-PAGENO treesearch_page_buildLL(int PageNo, char *key, struct node *root) { // ROOT, word
-    PAGENO result;
+POSTINGSPTR treesearch_page_buildLL(int PageNo, char *key, struct node *root) { // ROOT, word
+    POSTINGSPTR  result;
     struct PageHdr *PagePtr = FetchPage(PageNo);
     if (PagePtr != NULL) {
         root = (struct node *) malloc(sizeof(struct node *));
